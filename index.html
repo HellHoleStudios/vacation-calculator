@@ -1,0 +1,168 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
+
+    <title>简易产假计算器</title>
+</head>
+
+<body>
+
+    <div class="container" style="max-width:500px;margin:50px auto;">
+        <h1>产假计算</h1>
+        <hr />
+        <div class="input-group mb-3">
+            <span class="input-group-text">开始日期:</span>
+            <input type="date" class="form-control" id="start">
+        </div>
+        <div class="input-group mb-3">
+            <span class="input-group-text">寒假开始日期:</span>
+            <input type="date" class="form-control" id="whs">
+        </div>
+        <div class="input-group mb-3">
+            <span class="input-group-text">寒假结束日期:</span>
+            <input type="date" class="form-control" id="whe">
+        </div>
+        <div class="input-group mb-3">
+            <span class="input-group-text">暑假开始日期:</span>
+            <input type="date" class="form-control" id="shs">
+        </div>
+        <div class="input-group mb-3">
+            <span class="input-group-text">暑假结束日期:</span>
+            <input type="date" class="form-control" id="she">
+        </div>
+        <div class="input-group mb-3">
+            <span class="input-group-text">次年寒假开始日期:</span>
+            <input type="date" class="form-control" id="whs2">
+        </div>
+        <div class="input-group mb-3">
+            <span class="input-group-text">次年寒假结束日期:</span>
+            <input type="date" class="form-control" id="whe2">
+        </div>
+        <div class="input-group mb-3">
+            <select class="form-select" id='length'>
+                <option value=128>顺产(128天)</option>
+                <option value=143>剖宫产(143天)</option>
+            </select>
+            <div class="input-group-text">
+                <input class="form-check-input mt-0" type="checkbox" id="bonus">
+                <span class="ms-2">双胞胎(+15天)</span>
+            </div>
+        </div>
+
+        <button class="btn btn-primary" onclick="solve();">计算</button>
+
+        <p id="out" class="mt-2" style="font-size:20px;"></p>
+
+        <hr />
+
+        <p class="text-secondary"><i>by Zzzyt, XiaoGeNintendo from Hell Hole Studios. <a
+                    href="https://www.github.com/hellholestudios/vacation-calculator">Github</a></i></p>
+
+    </div>
+    <script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8"
+        crossorigin="anonymous"></script>
+    <script>
+    //TODO save it
+
+    function during(a, b, c) {
+        var B = new Date(b);
+        var C = new Date(c);
+        return a >= B && a <= C;
+    }
+
+    function dateToString(date) {
+        return date.getFullYear() + "-" + ((date.getMonth() + 1) + "").padStart(2, "0") + "-" + (date.getDate() + "").padStart(2, "0");
+    }
+
+    var now = new Date();
+    var year = now.getFullYear();
+
+    function solve() {
+        if ($("#start").val() === "") {
+            $("#out").text("请输入开始日期");
+            return;
+        }
+        if ($("#whs").val() === "") {
+            $("#out").text("请输入寒假开始日期");
+            return;
+        }
+        if ($("#whe").val() === "") {
+            $("#out").text("请输入寒假结束日期");
+            return;
+        }
+        if ($("#shs").val() === "") {
+            $("#out").text("请输入寒假开始日期");
+            return;
+        }
+        if ($("#she").val() === "") {
+            $("#out").text("请输入寒假结束日期");
+            return;
+        }
+        if ($("#whs2").val() === "") {
+            var tmp = new Date($("#whs").val());
+            tmp.setFullYear(tmp.getFullYear() + 1);
+            $("#whs2").val(dateToString(tmp));
+        }
+        if ($("#whe2").val() === "") {
+            var tmp = new Date($("#whe").val());
+            tmp.setFullYear(tmp.getFullYear() + 1);
+            $("#whe2").val(dateToString(tmp));
+        }
+
+        var day = parseInt($("#length").val()) + $("#bonus")[0].checked * 15;
+        var st = new Date($("#start").val());
+
+        for (var i = 0; i < day - 1; i++) {
+            while (during(st, $("#whs").val(), $("#whe").val()) || during(st, $("#shs").val(), $("#she").val()) || during(st, $("#whs2").val(), $("#whe2").val())) {
+                st.setDate(st.getDate() + 1);
+            }
+            st.setDate(st.getDate() + 1);
+        }
+
+        $("#out").text("是" + st.toLocaleDateString() + "!!");
+    }
+
+    function init(year) {
+        $("#whs").attr('min', year + "-01-01");
+        $("#whs").attr('max', year + "-12-31");
+        $("#whs").val("");
+        $("#whe").attr('min', year + "-01-01");
+        $("#whe").attr('max', year + "-12-31");
+        $("#whe").val("");
+
+        $("#shs").attr('min', year + "-01-01");
+        $("#shs").attr('max', year + "-12-31");
+        $("#shs").val(year + "-07-01");
+        $("#she").attr('min', year + "-01-01");
+        $("#she").attr('max', year + "-12-31");
+        $("#she").val(year + "-08-31");
+
+        $("#whs2").attr('min', (year + 1) + "-01-01");
+        $("#whs2").attr('max', (year + 1) + "-12-31");
+        $("#whs2").val("");
+        $("#whe2").attr('min', (year + 1) + "-01-01");
+        $("#whe2").attr('max', (year + 1) + "-12-31");
+        $("#whe2").val("");
+    }
+
+    $("#start").val(dateToString(now));
+    init(year);
+
+    $("#start").on("change", () => {
+        var st = new Date($("#start").val());
+        if (year !== st.getFullYear()) {
+            year = st.getFullYear();
+            init(year);
+        }
+    });
+    </script>
+</body>
+
+</html>
